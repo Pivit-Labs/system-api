@@ -32,7 +32,16 @@ const runAsync = <T>(fn: () => T): Promise<T> => {
   });
 };
 
-const IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp", ".svg", ".ico"];
+const IMAGE_EXTENSIONS = [
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".bmp",
+  ".gif",
+  ".webp",
+  ".svg",
+  ".ico"
+];
 const EXECUTABLE_EXTENSIONS = [".exe", ".dll", ".cpl", ".ocx", ".scr"];
 const MIME_TYPES: Record<string, string> = {
   ".png": "image/png",
@@ -66,7 +75,9 @@ async function iconToBase64(hIcon: unknown): Promise<string | null> {
 
   try {
     const iconInfo = {} as IconInfo;
-    const getIconInfoResult = await runAsync(() => GetIconInfo(hIcon, iconInfo));
+    const getIconInfoResult = await runAsync(() =>
+      GetIconInfo(hIcon, iconInfo)
+    );
 
     if (!getIconInfoResult) {
       await runAsync(() => DestroyIcon(hIcon));
@@ -81,7 +92,9 @@ async function iconToBase64(hIcon: unknown): Promise<string | null> {
 
     // Get actual bitmap dimensions
     const bitmapInfo = Buffer.alloc(koffi.sizeof(BITMAP));
-    const result = await runAsync(() => GetObject(iconInfo.hbmColor, koffi.sizeof(BITMAP), bitmapInfo));
+    const result = await runAsync(() =>
+      GetObject(iconInfo.hbmColor, koffi.sizeof(BITMAP), bitmapInfo)
+    );
 
     if (result === 0) {
       await runAsync(() => ReleaseDC(null, hdc));
@@ -125,7 +138,15 @@ async function iconToBase64(hIcon: unknown): Promise<string | null> {
     koffi.encode(bmi, BITMAPINFOHEADER, bmiHeader);
 
     const dibResult = await runAsync(() =>
-      GetDIBits(hdc, iconInfo.hbmColor, 0, height, pixelData, bmi, DIB_RGB_COLORS)
+      GetDIBits(
+        hdc,
+        iconInfo.hbmColor,
+        0,
+        height,
+        pixelData,
+        bmi,
+        DIB_RGB_COLORS
+      )
     );
 
     await runAsync(() => ReleaseDC(null, hdc));
@@ -165,7 +186,12 @@ async function iconToBase64(hIcon: unknown): Promise<string | null> {
     icoBitmapInfo.writeUInt32LE(0, 32);
     icoBitmapInfo.writeUInt32LE(0, 36);
 
-    const icoFile = Buffer.concat([icoHeader, icoEntry, icoBitmapInfo, pixelData]);
+    const icoFile = Buffer.concat([
+      icoHeader,
+      icoEntry,
+      icoBitmapInfo,
+      pixelData
+    ]);
     const base64 = icoFile.toString("base64");
 
     return `data:image/x-icon;base64,${base64}`;
@@ -174,13 +200,18 @@ async function iconToBase64(hIcon: unknown): Promise<string | null> {
   }
 }
 
-async function extractEmbeddedIcon(filePath: string, index: number = 0): Promise<string | null> {
+async function extractEmbeddedIcon(
+  filePath: string,
+  index: number = 0
+): Promise<string | null> {
   try {
     const wideFilePath = toWide(filePath);
     const largeIconPtr = [0];
     const smallIconPtr = [0];
 
-    const count = await runAsync(() => ExtractIconExW(wideFilePath, index, largeIconPtr, smallIconPtr, 1));
+    const count = await runAsync(() =>
+      ExtractIconExW(wideFilePath, index, largeIconPtr, smallIconPtr, 1)
+    );
     if (count > 0) {
       if (smallIconPtr[0]) {
         const small = await iconToBase64(smallIconPtr[0]);
@@ -197,7 +228,9 @@ async function extractEmbeddedIcon(filePath: string, index: number = 0): Promise
       const absIndex = Math.abs(index);
       const large2 = [0];
       const small2 = [0];
-      const count2 = await runAsync(() => ExtractIconExW(wideFilePath, absIndex, large2, small2, 1));
+      const count2 = await runAsync(() =>
+        ExtractIconExW(wideFilePath, absIndex, large2, small2, 1)
+      );
       if (count2 > 0) {
         if (small2[0]) {
           const small = await iconToBase64(small2[0]);
@@ -214,7 +247,9 @@ async function extractEmbeddedIcon(filePath: string, index: number = 0): Promise
     for (let i = 0; i < 8; i++) {
       const large3 = [0];
       const small3 = [0];
-      const count3 = await runAsync(() => ExtractIconExW(wideFilePath, i, large3, small3, 1));
+      const count3 = await runAsync(() =>
+        ExtractIconExW(wideFilePath, i, large3, small3, 1)
+      );
       if (count3 > 0) {
         if (small3[0]) {
           const small = await iconToBase64(small3[0]);
@@ -237,7 +272,13 @@ async function extractEmbeddedIcon(filePath: string, index: number = 0): Promise
     };
     const wideFilePathForShell = toWide(filePath);
     const result = await runAsync(() =>
-      SHGetFileInfoW(wideFilePathForShell, 0, fileInfo, koffi.sizeof(SHFILEINFOW), SHGFI_ICON | SHGFI_SMALLICON)
+      SHGetFileInfoW(
+        wideFilePathForShell,
+        0,
+        fileInfo,
+        koffi.sizeof(SHFILEINFOW),
+        SHGFI_ICON | SHGFI_SMALLICON
+      )
     );
     if (result && fileInfo.hIcon) {
       return await iconToBase64(fileInfo.hIcon);
@@ -273,7 +314,9 @@ function parsePathAndIndex(rawPath: string): { path: string; index: number } {
   return { path: trimmed, index: 0 };
 }
 
-export async function extractIconAsBase64(filePath: string | undefined | null): Promise<string | null> {
+export async function extractIconAsBase64(
+  filePath: string | undefined | null
+): Promise<string | null> {
   if (!filePath || !filePath.trim()) return null;
 
   const { path, index } = parsePathAndIndex(filePath.trim());

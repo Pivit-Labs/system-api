@@ -94,7 +94,10 @@ var ExtractIconExW = shell32.func("ExtractIconExW", "uint32", [
   "uint32"
 ]);
 var DestroyIcon = user32.func("DestroyIcon", "bool", ["void*"]);
-var GetIconInfo = user32.func("GetIconInfo", "bool", ["void*", koffi2.out(koffi2.pointer(IconInfoStruct))]);
+var GetIconInfo = user32.func("GetIconInfo", "bool", [
+  "void*",
+  koffi2.out(koffi2.pointer(IconInfoStruct))
+]);
 var GetDIBits = gdi32.func("GetDIBits", "int", [
   "void*",
   "void*",
@@ -107,7 +110,11 @@ var GetDIBits = gdi32.func("GetDIBits", "int", [
 var GetDC = user32.func("GetDC", "void*", ["void*"]);
 var ReleaseDC = user32.func("ReleaseDC", "int", ["void*", "void*"]);
 var DeleteObject = gdi32.func("DeleteObject", "bool", ["void*"]);
-var GetObject = gdi32.func("GetObjectW", "int", ["void*", "int", koffi2.out(koffi2.pointer("void"))]);
+var GetObject = gdi32.func("GetObjectW", "int", [
+  "void*",
+  "int",
+  koffi2.out(koffi2.pointer("void"))
+]);
 var SHGFI_ICON = 256;
 var SHGFI_SMALLICON = 1;
 var DIB_RGB_COLORS = 0;
@@ -124,7 +131,16 @@ var runAsync = (fn) => {
     });
   });
 };
-var IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp", ".svg", ".ico"];
+var IMAGE_EXTENSIONS = [
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".bmp",
+  ".gif",
+  ".webp",
+  ".svg",
+  ".ico"
+];
 var EXECUTABLE_EXTENSIONS = [".exe", ".dll", ".cpl", ".ocx", ".scr"];
 var MIME_TYPES = {
   ".png": "image/png",
@@ -227,7 +243,12 @@ async function iconToBase64(hIcon) {
     icoBitmapInfo.writeInt32LE(0, 28);
     icoBitmapInfo.writeUInt32LE(0, 32);
     icoBitmapInfo.writeUInt32LE(0, 36);
-    const icoFile = Buffer.concat([icoHeader, icoEntry, icoBitmapInfo, pixelData]);
+    const icoFile = Buffer.concat([
+      icoHeader,
+      icoEntry,
+      icoBitmapInfo,
+      pixelData
+    ]);
     const base64 = icoFile.toString("base64");
     return `data:image/x-icon;base64,${base64}`;
   } catch {
@@ -738,7 +759,17 @@ class WindowsAppRegistry {
           }
         }
         if (app.type === "uwp") {
-          execFileAsync("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", `Start-Process "shell:AppsFolder\\${app.launch}"`], { encoding: "utf8", windowsHide: true, maxBuffer: 1024 * 1024 * 128 });
+          execFileAsync("powershell.exe", [
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-Command",
+            `Start-Process "shell:AppsFolder\\${app.launch}"`
+          ], {
+            encoding: "utf8",
+            windowsHide: true,
+            maxBuffer: 1024 * 1024 * 128
+          });
         } else {
           if (!app.launch) {
             return;

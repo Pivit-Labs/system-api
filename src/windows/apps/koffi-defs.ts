@@ -50,7 +50,10 @@ export const ExtractIconExW = shell32.func("ExtractIconExW", "uint32", [
 ]);
 
 export const DestroyIcon = user32.func("DestroyIcon", "bool", ["void*"]);
-export const GetIconInfo = user32.func("GetIconInfo", "bool", ["void*", koffi.out(koffi.pointer(IconInfoStruct))]);
+export const GetIconInfo = user32.func("GetIconInfo", "bool", [
+  "void*",
+  koffi.out(koffi.pointer(IconInfoStruct))
+]);
 export const GetDIBits = gdi32.func("GetDIBits", "int", [
   "void*",
   "void*",
@@ -63,7 +66,11 @@ export const GetDIBits = gdi32.func("GetDIBits", "int", [
 export const GetDC = user32.func("GetDC", "void*", ["void*"]);
 export const ReleaseDC = user32.func("ReleaseDC", "int", ["void*", "void*"]);
 export const DeleteObject = gdi32.func("DeleteObject", "bool", ["void*"]);
-export const GetObject = gdi32.func("GetObjectW", "int", ["void*", "int", koffi.out(koffi.pointer("void"))]);
+export const GetObject = gdi32.func("GetObjectW", "int", [
+  "void*",
+  "int",
+  koffi.out(koffi.pointer("void"))
+]);
 
 export const SHGFI_ICON = 0x000000100;
 export const SHGFI_SMALLICON = 0x000000001;

@@ -1,4 +1,4 @@
-import type { Window } from "./windows";
+import { type Window } from "./windows";
 
 export interface App {
   id: string;

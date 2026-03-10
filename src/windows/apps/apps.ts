@@ -1,11 +1,11 @@
-import type { App, AppRegistry } from "@/modules/apps";
-import type { WindowManager } from "@/modules/windows";
 import { execFile, spawn } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { type App, type AppRegistry } from "@/modules/apps";
+import { type WindowManager } from "@/modules/windows";
 import { extractIconAsBase64 } from "./icon-extractor";
 
 const execFileAsync = promisify(execFile);
@@ -17,7 +17,9 @@ const powershellScriptCandidates = [
   join(process.cwd(), "src/windows/apps/fetch-apps.ps1"),
   join(process.cwd(), "dist/fetch-apps.ps1")
 ];
-const powershellScriptPath = powershellScriptCandidates.find((candidate) => existsSync(candidate));
+const powershellScriptPath = powershellScriptCandidates.find((candidate) =>
+  existsSync(candidate)
+);
 let executablePowershellScriptPath: string | null = null;
 
 const getExecutablePowershellScriptPath = () => {
@@ -25,13 +27,17 @@ const getExecutablePowershellScriptPath = () => {
     return executablePowershellScriptPath;
   }
 
-  const normalizedScriptPath = powershellScriptPath?.replace(/\\/g, "/").toLowerCase();
+  const normalizedScriptPath = powershellScriptPath
+    ?.replace(/\\/g, "/")
+    .toLowerCase();
   if (powershellScriptPath && !normalizedScriptPath?.includes(".asar/")) {
     executablePowershellScriptPath = powershellScriptPath;
     return executablePowershellScriptPath;
   }
 
-  const script = powershellScriptPath ? readFileSync(powershellScriptPath, "utf8") : POWERSHELL_SCRIPT;
+  const script = powershellScriptPath
+    ? readFileSync(powershellScriptPath, "utf8")
+    : POWERSHELL_SCRIPT;
   const tempScriptPath = join(tmpdir(), "system-api-fetch-apps.ps1");
   writeFileSync(tempScriptPath, script, "utf8");
   executablePowershellScriptPath = tempScriptPath;
@@ -391,7 +397,11 @@ const runFetchAppsScript = async (): Promise<PSApp[]> => {
     if (!raw) return [];
 
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as PSApp[]) : parsed ? [parsed as PSApp] : [];
+    return Array.isArray(parsed)
+      ? (parsed as PSApp[])
+      : parsed
+        ? [parsed as PSApp]
+        : [];
   } catch {
     return [];
   }
@@ -408,7 +418,10 @@ export class WindowsAppRegistry implements AppRegistry {
   }
 
   async fetchApps(): Promise<App[]> {
-    if (this.cachedApps && Date.now() - this.lastFetchTime < this.CACHE_DURATION) {
+    if (
+      this.cachedApps &&
+      Date.now() - this.lastFetchTime < this.CACHE_DURATION
+    ) {
       return this.cachedApps;
     }
 
@@ -437,8 +450,18 @@ export class WindowsAppRegistry implements AppRegistry {
         if (app.type === "uwp") {
           execFileAsync(
             "powershell.exe",
-            ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", `Start-Process "shell:AppsFolder\\${app.launch}"`],
-            { encoding: "utf8", windowsHide: true, maxBuffer: 1024 * 1024 * 128 }
+            [
+              "-NoProfile",
+              "-ExecutionPolicy",
+              "Bypass",
+              "-Command",
+              `Start-Process "shell:AppsFolder\\${app.launch}"`
+            ],
+            {
+              encoding: "utf8",
+              windowsHide: true,
+              maxBuffer: 1024 * 1024 * 128
+            }
           );
         } else {
           if (!app.launch) {

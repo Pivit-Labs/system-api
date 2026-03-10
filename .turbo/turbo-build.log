@@ -1,0 +1,20 @@
+
+> @pivit/system-api@0.1.0 build D:\Development\Pivit\Pivit\packages\system-api
+> bun build --target=node ./src/index.ts --outdir=dist --external=koffi && bun run build:declaration && bun run copy:scripts
+
+Bundled 15 modules in 19ms
+
+  index.js  51.48 KB  (entry point)
+
+$ dts-bundle-generator -o dist/index.d.ts src/index.ts
+Compiling input files...
+Processing src/index.ts
+[1;33mThe following type nodes were renamed because of the name collisions and will not be exported from the generated bundle:
+Writing src/index.ts -> dist/index.d.ts
+- Window (from D:/Development/Pivit/Pivit/packages/system-api/src/modules/windows.d.ts)
+This might lead to unpredictable and unexpected output, and possible breaking changes to your API.
+Consider either (re-)exporting them explicitly from the entry point, or disable --export-referenced-types option ('output.exportReferencedTypes' in the config).[0m
+Checking generated files...
+[1;33mCompiler option "skipLibCheck" is disabled to properly check generated output[0m
+Done in 2.57s
+$ cp src/windows/apps/fetch-apps.ps1 dist/
